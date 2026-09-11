@@ -16,6 +16,7 @@ https://12367.pages.dev/
 - `截图/`：使用说明图片，构建时会压缩并内联。
 - `build_single_file.py`：生成 `index.html` 与上传用 `index.zip`。
 - `PROJECT-NOTES.md`：当前版本的功能与修复记录。
+- `DESIGN.md`：蓝白控制台界面的视觉规范。
 
 ## 构建
 
@@ -30,10 +31,9 @@ python .\build_single_file.py
 
 ## 当前版本校验
 
-2026-09-12 核对时，线上页面、本目录 `index.html` 和构建脚本重新生成的文件完全一致：
+2026-09-12 完成阿里云蓝白控制台风格改版后，本目录构建产物为：
 
 ```text
-SHA-256: 993B76783BFA3F0DA39EE7FC2AF8B0DE4D7D370E37F3230B1D58A665B1E2722F
-Size:    2,053,786 bytes
+SHA-256: 046CCB0D3A0C98FCCD8DFE1C3F7423E0068B61AAE5595376CF2D1375B29D21A5
+Size:    2,062,433 bytes
 ```
-
