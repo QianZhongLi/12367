@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="港澳逗留有效天数计算器，本地解析 PDF，澳门与香港分开统计。"/>
+  <title>港澳逗留有效天数计算器</title>
+  <link rel="stylesheet" href="./港澳出入境有效天数计算器_files/style.css">
+  <noscript>
+    <style>
+      #jsWarning { display: block !important; }
+    </style>
+  </noscript>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>港澳逗留有效天数计算器</h1>
+        <p style="cursor:pointer;color:var(--primary);font-weight:600;margin:0 0 14px" onclick="toggleCollapse('heroContent', this.querySelector('.collapse-icon'))"><span class="collapse-icon">▼</span> 点击展开详细计算规则</p>
+        <div id="heroContent" class="collapse-wrap">
+          <p class="hero-meta">
+            Cloud flare托管永久免费，本地计算不上传任何信息，选择“国家移民管理局12367”微信小程序下载的出入境记录PDF，即可计算。天数要求→
+            <a href="https://zwfw.cscse.edu.cn" target="_blank">国家留服认证中心，点击常见问题解答</a><br/>
+            原作：LeeV <a href="https://entryexittime.netlify.app/" target="_blank">若此版本出现故障，可直接访问原版</a><br/>
+            二创：钱中里（使用KimiCode新增功能） · 
+            <span id="offlineOnlineText"><a href="https://12367.pages.dev/" target="_blank">访问在线版</a></span><br/>
+            <a href="https://xhslink.com/m/92oEpfNKzp3" target="_blank">小红书@伟龙马路职业技术学院</a><br/>
+          </p>
+          <pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;background:rgba(8,163,159,0.05);padding:14px 16px;border-radius:12px;border:1px solid rgba(8,163,159,0.12);margin:14px 0">
+留服认证要求一年制90天，二年制180天，四年制365天，具体还要结合课表和当地假期判断。
+本计算器计算规则说明：
+1. 有效离境天数 = 自然离境天数 减去 各规则扣除天数
+2. 扣除天数包括：周末、政府公众假期、补假日、学校寒暑假（暂时仅录入了澳门寒暑假）
+3. 半日假按 0.5 天扣除（默认不勾选）
+4. 必须从开学日期开始累计，开学前不计入逗留时长
+5. 解析PDF时会自动识别口岸，无法识别的口岸会被标记为待复核，您需要根据真实行程手动选择是计入澳门还是香港，或者不计入（如果是误识别的无效记录）。如果有多个连续记录的口岸都无法识别，您也可以批量选择全部计入澳门或香港
+6. 如果您发现计算结果有误，或者有任何关于使用的建议和意见，欢迎点击计算结果区域的反馈按钮发送反馈，并在小红书留言，我们会第一时间修复并持续优化改进
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pdf-guide-card">
+      <div class="card-title" style="cursor:pointer" onclick="toggleCollapse('pdfGuideWrap', this.querySelector('.collapse-icon'))">
+        <span class="num">00</span>
+        <h2>如何下载出入境记录PDF？ <span class="collapse-icon" style="margin-left:6px">▼</span> 点击展开</h2>
+      </div>
+      <div id="pdfGuideWrap" class="collapse-wrap">
+        <div class="pdf-steps">
+          <div class="pdf-step">
+            <div class="step-num">1</div>
+            <p>微信搜索「移民局12367」小程序</p>
+            <img src="./截图/1.jpg" alt="步骤1" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">2</div>
+            <p>选择「中国公民服务」</p>
+            <img src="./截图/2.jpg" alt="步骤2" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">3</div>
+            <p>选择「出入境记录查询」</p>
+            <img src="./截图/3.jpg" alt="步骤3" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">4</div>
+            <p>人脸识别登录</p>
+            <img src="./截图/4.jpg" alt="步骤4" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">5</div>
+            <p>选"一年"或"五年"，点击下一步,注意必须包含全部记录</p>
+            <img src="./截图/5.jpg" alt="步骤5" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">6</div>
+            <p>点击"查询"</p>
+            <img src="./截图/6.jpg" alt="步骤6" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">7</div>
+            <p>点击"记录下载"</p>
+            <img src="./截图/7.jpg" alt="步骤7" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">8</div>
+            <p>点击"本地下载"，下不了就选邮箱</p>
+            <img src="./截图/8.jpg" alt="步骤8" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">9</div>
+            <p>"保存到手机"</p>
+            <img src="./截图/9.jpg" alt="步骤9" loading="lazy"/>
+          </div>
+          <div class="pdf-step">
+            <div class="step-num">10</div>
+            <p>或者发给文件传输助手到电脑接收</p>
+            <img src="./截图/10.jpg" alt="步骤10" loading="lazy"/>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01-04 四宫格 -->
+    <div class="top-grid">
+      <!-- 01 导入PDF -->
+      <section class="card">
+        <div class="card-title">
+          <span class="num">01</span>
+          <h2>导入PDF</h2>
+        </div>
+        <div class="file-box custom-file-picker" id="fileBox" onclick="const f=document.getElementById('pdfFile');f.value='';f.click()" ondragover="event.preventDefault()" ondrop="handlePdfDrop(event)">
+          <input id="pdfFile" class="file-input-hidden" type="file" accept="application/pdf,.pdf" style="display:none"/>
+          <span class="file-icon">📄</span>
+          <span class="file-title">拖入国家移民局12367小程序下载的出入境记录PDF</span>
+          <span class="file-cta">选择文件</span>
+          <small>建议使用 Chrome、Edge 或 Safari浏览器。PDF不会上传，纯本地解析。</small>
+        </div>
+        <p id="fileName" class="file-name">
+          尚未选择文件
+          <button id="demoBtn" type="button" class="recalc-btn" style="margin-left:8px">示例数据测试</button>
+          <button id="recalcPdfBtn" type="button" class="recalc-btn" style="display:none;margin-left:8px">重新计算</button>
+        </p>
+      </section>
+
+      <!-- 02 解析文本展示区 / 粘贴文本区 -->
+      <section class="card">
+        <div class="card-title">
+          <span class="num">02</span>
+          <h2>解析文本展示区（可粘贴或手动修改）</h2>
+        </div>
+        <textarea id="rawText" placeholder="PDF解析结果将自动填入此处，您也可以直接粘贴从PDF复制出的表格文字，或手动修改后自动计算。
+例如：
+序号  出境/入境    出入境日期   证件名称   证件号码   出入境口岸  航班号 
+ 1   出境   2026-05-28   往来港澳通行证   *********   横琴口岸
+ 2   入境   2026-05-27   往来港澳通行证   *********   横琴口岸
+ 3   出境   2026-05-27   往来港澳通行证   *********   横琴口岸
+ 4   入境   2026-05-27   往来港澳通行证   *********   横琴口岸
+ 5   出境   2026-05-26   往来港澳通行证   *********   横琴口岸
+ 6   入境   2026-05-26   往来港澳通行证   *********   横琴口岸
+ 7   出境   2026-05-26   往来港澳通行证   *********   横琴口岸
+ 8   入境   2026-05-26   往来港澳通行证   *********   横琴口岸
+ 9   出境   2026-05-25   往来港澳通行证   *********   横琴口岸
+ 10   入境   2026-05-25   往来港澳通行证   *********   横琴口岸
+ 11   出境   2026-05-24   往来港澳通行证   *********   横琴口岸"></textarea>
+        <div id="textStatus" class="text-status">准备就绪。请选择 PDF 或粘贴文本。</div>
+        <div id="progressBox" class="progress-box" style="display:none">
+          <div class="progress-track">
+            <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="progress-meta">
+            <span id="progressLabel">等待开始</span>
+            <span id="progressPercent" class="progress-percent">0%</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 03 选择适用地区 -->
+          <section id="regionCard" class="card hidden">
+        <div class="card-title">
+          <span class="num">03</span>
+          <h2>选择适用地区</h2>
+        </div>
+        <div class="radio-grid">
+          <label class="choice"><input type="radio" name="region" value="macao" checked/> <span>澳门学生</span></label>
+          <label class="choice"><input type="radio" name="region" value="hongkong"/> <span>香港学生</span></label>
+          <label class="choice"><input type="radio" name="region" value="other"/> <span>其它留学生</span></label>
+        </div>
+      </section>
+
+    <section id="rulesCard" class="card hidden">
+        <div class="card-title">
+          <span class="num">04</span>
+          <h2>扣除规则</h2>
+        </div>
+        <div class="check-grid">
+          <label><input type="checkbox" id="deductWeekend" checked/> <span>扣除周六、周日</span></label>
+          <label><input type="checkbox" id="deductGovHoliday" checked/> <span>扣除政府公众假期</span></label>
+          <label><input type="checkbox" id="deductCompensatory" checked/> <span>扣除补假日</span></label>
+          <label><input type="checkbox" id="deductHalfDay"/> <span>扣除半日假，按 0.5 天</span></label>
+          <label><input type="checkbox" id="deductSchoolBreak" checked/> <span>扣除学校寒暑假</span></label>
+        </div>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label class="cal-start-label">📅 开学日期（累计起始日）：<input id="rulesStartDate" type="date"/></label><button id="setSept1Btn-rules" type="button" class="recalc-btn" style="margin-left:6px">设为9月1日</button><button id="setJan15Btn-rules" type="button" class="recalc-btn" style="margin-left:6px">设为1月15日</button>
+          <span class="hint" style="margin:0">有效离境天数与日历累计均从该日期开始计算。</span>
+        </div>
+        <p class="hint">校庆日默认不扣除。寒暑假仅澳门学生方向启用。</p>
+      </section>
+    </div>
+
+    <div class="bottom-col">
+    <section id="resultCard" class="card hidden result-card">
+      <div class="section-head">
+        <div class="card-title">
+          <span class="num">05</span>
+          <h2>计算结果</h2>
+        </div>
+        <div class="actions">
+          <button id="copySummaryBtn" type="button">复制年度汇总</button>
+          <button id="exportSummaryBtn" type="button">导出表格</button>
+        </div>
+      </div>
+
+      <div class="start-date-bar" style="margin:14px 0 14px auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label class="cal-start-label">📅 开学日期（累计起始日）：<input id="startDateInput" type="date"/></label><button id="setSept1Btn-start" type="button" class="recalc-btn" style="margin-left:6px">设为9月1日</button><button id="setJan15Btn-start" type="button" class="recalc-btn" style="margin-left:6px">设为1月15日</button>
+        <span class="hint" style="margin:0">有效离境天数与日历累计均从该日期开始计算，默认取最早记录当年的9月1日。</span>
+        <div style="margin-top:12px;font-size:13px"><button type="button" class="recalc-btn" style="padding:4px 12px;font-size:12px" onclick="showFeedbackModal()">📝 计算错误？发送反馈</button></div>
+        
+      </div>
+
+      <h3>年度汇总</h3>
+      <div class="table-wrap">
+        <table id="summaryTable">
+          <thead>
+            <tr>
+              <th>年份</th>
+              <th>自然离境天数</th>
+              <th>周末扣除</th>
+              <th>公众假期扣除</th>
+              <th>补假扣除</th>
+              <th>学校假期扣除</th>
+              <th>合计扣除</th>
+              <th>有效离境天数</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="calendarCard" class="card hidden calendar-card">
+      <div class="card-title">
+        <span class="num">06</span>
+        <h2>万年历视图（人工核验）</h2>
+      </div>
+      
+      <div class="calendar-extra-bar" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label class="cal-start-label">📅 开学日期（累计起始日）：<input id="calStartDate" type="date"/></label><button id="setSept1Btn-cal" type="button" class="recalc-btn" style="margin-left:6px">设为9月1日</button><button id="setJan15Btn-cal" type="button" class="recalc-btn" style="margin-left:6px">设为1月15日</button>
+          <span class="hint" style="margin:0">⚠️必须设置，开学前不计入逗留时长。</span>
+          <button id="calZoomOut" type="button">🔍− 缩小</button>
+          <span id="calZoomLevelDisplay" style="display:inline-flex;align-items:center;padding:0 6px;font-weight:700;color:var(--primary);font-size:14px;min-width:42px;justify-content:center">100%</span>
+          <button id="calZoomIn" type="button">🔍+ 放大</button>
+          <button id="calZoomReset" type="button">🔍 重置</button>
+          <button id="calExportImg" type="button">📸 导出截图</button>
+          <button id="calExportTable" type="button">📊 导出表格</button>
+        </div>
+      </div>
+      <div class="calendar-mode-bar">
+        <button class="mode-btn active" data-mode="year" type="button">📆 年度视图（便于截图）</button>
+        <button class="mode-btn" data-mode="full" type="button">🖼️ 月度整体视图（详细扣除原因）</button>
+        <!-- <button class="mode-btn" data-mode="scroll" type="button">📜 月度局部视图（详细扣除原因）</button> -->
+        <!-- <button class="mode-btn" data-mode="month" type="button">📅 按月翻页（详细扣除原因）</button> -->
+      </div>
+      <div class="calendar-toolbar" id="monthToolbar">
+        <button id="calPrevYear" type="button">« 上年</button>
+        <button id="calPrevMonth" type="button">‹ 上月</button>
+        <select id="calYearSelect"></select>
+        <select id="calMonthSelect"></select>
+        <button id="calNextMonth" type="button">下月 ›</button>
+        <button id="calNextYear" type="button">下年 »</button>
+      </div>
+      <div id="calendarWrap" class="calendar-wrap"></div>
+      <div class="calendar-legend">
+        <span class="legend-item" data-short="出境"><span class="legend-dot exit"></span>出去澳门/香港</span>
+        <span class="legend-item" data-short="入境"><span class="legend-dot entry"></span>进入内地</span>
+        <span class="legend-item" data-short="境内"><span class="legend-dot stay"></span>区间内</span>
+        <span class="legend-item" data-short="扣除"><span class="legend-dot deduct"></span>被扣除</span>
+        <span class="legend-item" data-short="忽略"><span class="legend-dot ignored"></span>被忽略区间</span>
+      </div>
+    </section>
+
+    <section id="tripTableCard" class="card hidden trip-table-card">
+      <div class="card-title" style="cursor:pointer" onclick="toggleCollapse('tripTableWrap', this.querySelector('.collapse-icon'))">
+        <span class="num">07</span>
+        <h2>出境入境总表 <span class="collapse-icon rotated" style="margin-left:6px">▼</span> 点击展开</h2>
+      </div>
+      <div id="tripTableWrap" class="collapse-wrap collapsed">
+        <p class="hint">检查解析是否成功、去除无关记录</p>
+        <div class="table-wrap">
+          <table id="tripTable">
+            <thead>
+              <tr>
+                <th>计入</th>
+                <th>出境日期</th>
+                <th>出境口岸</th>
+                <th>入境日期</th>
+                <th>入境口岸</th>
+                <th>区间天数</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="holidaysCard" class="card hidden">
+      <div class="card-title" style="cursor:pointer" onclick="toggleCollapse('holidaysWrap', this.querySelector('.collapse-icon'))">
+        <span class="num">08</span>
+        <h2>节假日明细 <span class="collapse-icon rotated" style="margin-left:6px">▼</span> 点击展开</h2>
+      </div>
+      <div id="holidaysWrap" class="collapse-wrap collapsed">
+        <p class="hint">可选择是否扣除</p>
+        <div class="table-wrap">
+          <table id="holidaysTable">
+            <thead>
+              <tr><th>日期</th><th>名称</th><th>类型</th><th>权重</th><th>操作</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <h4 style="margin:24px 0 10px;color:var(--text);font-size:16px">学校假期（寒暑假）<small style="font-size:13px;color:var(--muted)">仅澳门学生适用</small></h4>
+        <div class="table-wrap">
+          <table id="schoolBreaksTable">
+            <thead>
+              <tr><th>开始日期</th><th>结束日期</th><th>名称</th><th>操作</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button id="addHolidayBtn" type="button">+ 新增节假日</button>
+          <button id="addSchoolBreakBtn" type="button">+ 新增学校假期</button>
+          <button id="saveHolidaysBtn" type="button">保存到 holidays.js（网页版、离线版暂不可用，您可以直接在万年历视图检查并扣除未扣除的假期）</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="reviewCard" class="card hidden review-card">
+      <div class="card-title" style="cursor:pointer" onclick="toggleCollapse('reviewWrap', this.querySelector('.collapse-icon'))">
+        <span class="num">09</span>
+        <h2>待复核口岸 <span class="collapse-icon rotated" style="margin-left:6px">▼</span> 点击展开</h2>
+      </div>
+      <div id="reviewWrap" class="collapse-wrap collapsed">
+        <div class="stats text-stats" style="margin-top:0;margin-bottom:14px">
+          <div><span>识别记录数</span><strong id="recordCount">0</strong></div>
+          <div><span>完整离境区间数</span><strong id="intervalCount">0</strong></div>
+          <div><span>待复核区间数</span><strong id="reviewCount">0</strong></div>
+          <div><span>复核计入记录</span><strong id="reviewSelectedCount">0</strong></div>
+          <div><span>复核新增天数</span><strong id="reviewAddedDays">0</strong></div>
+        </div>
+        <p id="reviewEffectMessage" class="notice" style="margin-top:0;margin-bottom:14px;display:none">暂无复核影响</p>
+        <p class="hint">未识别口岸，需要根据真实行程手动选择。</p>
+        <div class="review-batch-bar" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <button type="button" class="review-batch-btn" onclick="batchReview('macao')">全部计入澳门</button>
+          <button type="button" class="review-batch-btn" onclick="batchReview('hongkong')">全部计入香港</button>
+          <button type="button" class="review-batch-btn" onclick="batchReview('exclude')">全部不计入</button>
+        </div>
+        <div id="reviewList" class="review-list"></div>
+      </div>
+    </section>
+
+    <section id="deductListCard" class="card hidden">
+      <div class="card-title" style="cursor:pointer" onclick="toggleCollapse('deductListWrap', this.querySelector('.collapse-icon'))">
+        <span class="num">10</span>
+        <h2>扣除天数及其原因列表 <span class="collapse-icon rotated" style="margin-left:6px">▼</span> 点击展开</h2>
+      </div>
+      <div id="deductListWrap" class="collapse-wrap collapsed">
+        <div class="table-wrap">
+          <table id="deductListTable">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>星期</th>
+                <th>扣除原因</th>
+                <th>扣除天数</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <footer class="footer">
+      <p>港澳出入境有效天数计算器</p>
+      <p>结果仅供个人估计逗留时长，正式留服认证会有专门的核验方式。</p>
+      <p>© 2026 钱中里. All rights reserved.</p>
+    </footer>
+
+    <!-- JS 不可用警告（默认 display:none，noscript 中覆盖为 block） -->
+    <div id="jsWarning" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#fff3cd;border-top:1px solid #ffc107;padding:12px 16px;font-size:13px;line-height:1.6;color:#856404;text-align:center">
+      <b>加载中，请稍后………… </b><br/>
+      若无法使用可能是JavaScript被禁用，可能原因：浏览器禁用了 JS、当前环境不支持 JS、文件加载异常。<br/>
+      建议：
+      <a href="javascript:void(0)" onclick="downloadOffline()">下载离线版</a>确保完整功能、
+      <a href="https://12367.pages.dev/" target="_blank">访问在线版</a>、
+      更换现代浏览器（Chrome/Edge/Safari）、关闭浏览器调试设置的禁用JavaScript选项，或检查是否有安全软件阻止了脚本运行。<br/>
+      <a href="javascript:void(0)" onclick="showFeedbackModal()">邮件联系作者反馈</a>。
+    </div>
+
+    <!-- 计算结果弹窗 -->
+    <div id="resultModal" class="modal-overlay" onclick="if(event.target===this)closeResultModal()">
+      <div class="modal-card">
+        <div class="modal-title" id="modalTitle">📊 计算完成</div>
+        <div class="modal-number" id="modalNumber">0</div>
+        <div class="modal-label" id="modalLabel">合计有效离境天数</div>
+        <div class="modal-detail" id="modalDetail"></div>
+        <div style="margin-top:12px;margin-bottom:16px;font-size:13px"><button type="button" class="recalc-btn" style="padding:4px 12px;font-size:12px" onclick="showFeedbackModal()">📝 计算错误？发送反馈</button></div>
+        <button class="modal-close" onclick="closeResultModal()">查看详情</button>
+      </div>
+    </div>
+
+    <!-- 天数较少提示弹窗 -->
+    <div id="shortDaysModal" class="modal-overlay" onclick="if(event.target===this)closeShortDaysModal()">
+      <div class="modal-card">
+        <div class="modal-title">⚠️ 天数较少提示</div>
+        <div class="modal-detail" style="text-align:left;margin-bottom:16px">
+          <p>系统检测到您的有效离境天数较少，已自动去除全部扣除限制重新计算。</p>
+          <p style="margin-top:10px;color:#dc2626;font-weight:700;font-size:15px">⚠️ 必须选择完整记录导出！仅导出"近三月"会导致计算结果不全、天数偏少，严重影响逗留时长认定。</p>
+          <p style="margin-top:6px">请按下图所示，在小程序中选择<strong>"一年"</strong>或<strong>"五年"</strong>后重新导出：</p>
+          <img src="./截图/5-1.jpg" alt="选择一年或五年" style="width:100%;border-radius:10px;margin-top:10px;border:1px solid var(--line)"/>
+        </div>
+        <button class="modal-close" onclick="closeShortDaysModal()">我知道了</button>
+      </div>
+    </div>
+
+    <!-- 反馈弹窗 -->
+    <div id="feedbackModal" class="modal-overlay" onclick="if(event.target===this)closeFeedbackModal()">
+      <div class="modal-card" style="max-width:520px">
+        <div class="modal-title">📝 发送反馈</div>
+        <form action="https://formspree.io/f/mgoqjvld" method="POST" onsubmit="return onFeedbackSubmit()">
+          <input type="hidden" name="_next" id="feedbackNext" value=""/>
+          <input type="hidden" name="_subject" value="自动反馈到邮箱1836035711@qq.com"/>
+          <div style="margin-bottom:12px">
+            <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:4px">问题描述（可选）</label>
+            <textarea name="message" id="feedbackMessage" rows="3" placeholder="请描述遇到的问题..." style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);font-size:14px;resize:vertical;font-family:inherit"></textarea>
+          </div>
+          <div style="margin-bottom:16px">
+            <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:4px">已脱敏的解析文本（可选）</label>
+            <textarea id="feedbackRawPreview" rows="4" readonly style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);font-size:12px;background:#f6f8fb;color:var(--muted);resize:vertical;font-family:inherit"></textarea>
+            <input type="hidden" name="raw_text" id="feedbackRawText"/>
+          </div>
+          <button type="submit" class="modal-close" style="margin-bottom:10px">📨 提交反馈</button>
+          <button type="button" class="modal-close" style="background:linear-gradient(135deg,#94a3b8,#64748b);margin-bottom:0" onclick="closeFeedbackModal()">取消</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="./港澳出入境有效天数计算器_files/pdf.min.js"></script>
+  <script src="./港澳出入境有效天数计算器_files/holidays.js"></script>
+  <script src="./港澳出入境有效天数计算器_files/ports.js"></script>
+  <script src="./港澳出入境有效天数计算器_files/calculator.js"></script>
+  <script src="./港澳出入境有效天数计算器_files/app.js"></script>
+</body>
+</html>
