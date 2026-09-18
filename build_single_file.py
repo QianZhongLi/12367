@@ -7,6 +7,7 @@
 """
 
 import base64
+import hashlib
 import io
 import os
 import re
@@ -145,7 +146,12 @@ def build():
         else:
             print(f"[JS]  Warning: {js_name} not found")
     
-    # 3. 处理图片：先压缩，再转 base64
+    # 在线版外置图片，离线版仍内联完整图片。
+    offline_html = html
+    asset_dir = os.path.join(BASE_DIR, 'assets', 'guide')
+    os.makedirs(asset_dir, exist_ok=True)
+    assets = []
+    # 3. 处理图片：压缩并生成独立资源
     print("\n--- 图片处理 ---")
     total_orig = 0
     total_comp = 0
@@ -180,7 +186,16 @@ def build():
             print(f"[{idx}/{total_imgs}] {filename}: {len(data)/1024:.1f} KB -> base64 {len(b64)/1024:.1f} KB (未压缩)")
         
         data_uri = f'data:image/jpeg;base64,{b64}'
-        html = html.replace(old_src, data_uri)
+        offline_html = offline_html.replace(old_src, data_uri)
+        image_bytes = base64.b64decode(b64)
+        digest = hashlib.sha256(image_bytes).hexdigest()[:12]
+        asset_name = f'{os.path.splitext(filename)[0]}-{digest}.jpg'
+        asset_path = os.path.join(asset_dir, asset_name)
+        with open(asset_path, 'wb') as f:
+            f.write(image_bytes)
+        asset_url = f'assets/guide/{asset_name}'
+        assets.append((asset_path, asset_url))
+        html = html.replace(old_src, './' + asset_url)
     
     # 4. Minify
     print("\n--- 代码压缩 ---")
@@ -192,12 +207,18 @@ def build():
     # 5. 写入输出文件
     with open(OUTPUT_HTML, 'w', encoding='utf-8') as f:
         f.write(html)
+    offline_path = os.path.join(BASE_DIR, 'offline.html')
+    with open(offline_path, 'w', encoding='utf-8') as f:
+        f.write(minify_html(offline_html))
     
     out_size = os.path.getsize(OUTPUT_HTML)
     
     # 6. 压缩为 zip
     with zipfile.ZipFile(OUTPUT_ZIP, 'w', zipfile.ZIP_DEFLATED) as zf:
         zf.write(OUTPUT_HTML, os.path.basename(OUTPUT_HTML))
+        zf.write(offline_path, 'offline.html')
+        for asset_path, asset_url in assets:
+            zf.write(asset_path, asset_url)
     zip_size = os.path.getsize(OUTPUT_ZIP)
     
     # 7. 自动备份

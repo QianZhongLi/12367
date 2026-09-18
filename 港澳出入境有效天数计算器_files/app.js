@@ -15,10 +15,18 @@
 
   const $ = (id) => document.getElementById(id);
 
+  function loadDeferredImages(container) {
+    container.querySelectorAll('img[data-src]').forEach(img => {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    });
+  }
+
   function toggleCollapse(id, iconEl) {
     const el = $(id);
     if (!el) return;
     el.classList.toggle('collapsed');
+    if (!el.classList.contains('collapsed')) loadDeferredImages(el);
     if (iconEl) {
       iconEl.classList.toggle('rotated');
     }
@@ -39,6 +47,7 @@
   window.toggleCollapse = toggleCollapse;
 
   function init() {
+    document.querySelector('.pdf-guide-card .collapse-icon')?.classList.add('rotated');
     setupPdfJs();
     injectProgressStyle();
     bindEvents();
@@ -62,11 +71,9 @@
     // 页面加载1秒后自动折叠 hero 与 PDF 指南
     setTimeout(() => {
       const heroContent = $('heroContent');
-      const pdfGuideWrap = $('pdfGuideWrap');
       if (heroContent) heroContent.classList.add('collapsed');
-      if (pdfGuideWrap) pdfGuideWrap.classList.add('collapsed');
       // 旋转三角
-      document.querySelectorAll('.hero .collapse-icon, .pdf-guide-card .collapse-icon').forEach(icon => {
+      document.querySelectorAll('.hero .collapse-icon').forEach(icon => {
         icon.classList.add('rotated');
       });
     }, 1000);
@@ -1361,7 +1368,10 @@
       state.shortDaysTipShown = true;
       setTimeout(() => {
         const tipModal = $('shortDaysModal');
-        if (tipModal) tipModal.classList.add('show');
+        if (tipModal) {
+          loadDeferredImages(tipModal);
+          tipModal.classList.add('show');
+        }
       }, 600);
     }
   }
@@ -2146,7 +2156,7 @@
 // 全局：下载当前页面为离线版
 function downloadOffline() {
   const a = document.createElement('a');
-  a.href = window.location.href;
+  a.href = window.location.protocol === 'file:' ? window.location.href : new URL('./offline.html', window.location.href).href;
   a.download = '逗留计算器浏览器打开.html';
   document.body.appendChild(a);
   a.click();
