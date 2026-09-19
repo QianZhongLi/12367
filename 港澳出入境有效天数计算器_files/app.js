@@ -719,9 +719,9 @@
     const text = $('rawText').value || '';
     if (!text.trim()) return;
 
-    // 停止引导闪动
+    // 示例计算后仍引导用户上传自己的记录；真实数据计算才停止动画。
     const fileBox = $('fileBox');
-    if (fileBox) fileBox.classList.remove('flash-continuous');
+    if (fileBox) fileBox.classList.toggle('flash-continuous', isDemo === true);
 
     setTextStatus('正在计算...', false);
     runCalculation(text, isDemo === true);

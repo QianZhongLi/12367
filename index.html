@@ -1542,7 +1542,7 @@
  const text = $('rawText').value || '';
  if (!text.trim()) return;
  const fileBox = $('fileBox');
- if (fileBox) fileBox.classList.remove('flash-continuous');
+ if (fileBox) fileBox.classList.toggle('flash-continuous', isDemo === true);
  setTextStatus('正在计算...', false);
  runCalculation(text, isDemo === true);
  }
