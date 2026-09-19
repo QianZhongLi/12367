@@ -937,11 +937,11 @@
  const message = $('demoCountdown');
  let timer = null;
  let stopped = false;
- let seconds = 5;
+ let seconds = 3;
  const pause = () => {
  clearInterval(timer);
  timer = null;
- seconds = 5;
+ seconds = 3;
  message.hidden = true;
  };
  const observer = new IntersectionObserver(entries => {
@@ -1133,13 +1133,13 @@
  if (demoBtn) {
  demoBtn.addEventListener('click', () => {
  stopAutoDemo();
- const dates = ['09-17','09-17','09-15','09-15','09-11','09-11','06-20','06-19','06-19','06-16','06-16','06-15','06-15','06-15','06-15','06-14','06-14','06-13','06-13','06-13','06-12','06-11','06-11','06-09','06-09','06-08','06-08'];
+ const dates = ['05-28','05-27','05-27','05-27','05-26','05-26','05-26','05-26','05-25','05-25','05-24','05-24','05-23','05-23','05-22','05-22','05-21','05-21','05-21','05-21','05-19','05-19','05-18','05-17','05-16','05-16','05-15'];
  const demoText = `国家移民管理局 出入境记录查询结果（电子文件）
 查询人姓名: **，性别: 男，出生日期: ***********，公民身份号码: ******************，通过国家移民管理局出入境记录查询系统查询，
-其本人在2021年09月18日至2026年09月18日期间有下列出入境记录：
-编号：************* 查询日期：2026年09月18日
+其本人在2025年05月29日至2026年05月29日期间有下列出入境记录：
+编号：************* 查询日期：2026年05月29日
 序号 出境/入境 出入境日期 证件名称 证件号码 出入境口岸
-航班号 ` + dates.map((date, index) => `${index + 1} ${index % 2 === 0 ? '入境' : '出境'} 2026-${date} 往来港澳通行证 ********* 横琴口岸`).join('\n');
+航班号 ` + dates.map((date, index) => `${index + 1} ${index % 2 === 0 ? '出境' : '入境'} 2026-${date} 往来港澳通行证 ********* 横琴口岸`).join('\n');
  $('rawText').value = demoText;
  setTextStatus('已填入示例数据，正在计算...', false);
  calculateFromText(true);
@@ -2119,7 +2119,7 @@
  }
  }
  const modalTitle = $('modalTitle');
- if (modalTitle) modalTitle.textContent = `${state.isDemo ? '示例：' : ''}${regionName}计算结果`;
+ if (modalTitle) modalTitle.textContent = state.isDemo ? '此为示例数据测试' : `${regionName}计算结果`;
  $('modalNumber').textContent = Math.round(totalValid * 10) / 10;
  if (totalValid < 10 && !state.isDemo) {
  $('modalLabel').textContent = '合计有效离境天数';
