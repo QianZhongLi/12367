@@ -1911,12 +1911,40 @@ tbody tr:hover td {
 }
 
 .file-box.flash-continuous {
-  animation: fileBoxConsolePulse 1.8s ease-in-out infinite;
+  animation: fileBoxConsolePulse 1.6s ease-in-out infinite;
+  border-color: #0064c8;
+  background: #e2efff;
+}
+
+.file-icon {
+  display: inline-flex;
+  transform-origin: center;
+}
+
+.file-box.flash-continuous .file-icon {
+  animation: fileIconConsolePulse 1.6s ease-in-out infinite;
+}
+
+.file-box.motion-paused,
+.file-box.motion-paused .file-icon {
+  animation-play-state: paused;
 }
 
 @keyframes fileBoxConsolePulse {
-  0%, 100% { border-color: #9aa8b6; background: #fafbfc; }
-  50% { border-color: var(--primary); background: #edf6ff; }
+  0%, 100% { border-color: #4086cf; background: #f0f6ff; }
+  50% { border-color: #0052a4; background: #c5dfff; }
+}
+
+@keyframes fileIconConsolePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .file-box.flash-continuous,
+  .file-box.flash-continuous .file-icon {
+    animation: none;
+  }
 }
 
 .modal-overlay {

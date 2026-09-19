@@ -114,7 +114,7 @@
         </div>
         <div class="file-box custom-file-picker" id="fileBox" onclick="const f=document.getElementById('pdfFile');f.value='';f.click()" ondragover="event.preventDefault()" ondrop="handlePdfDrop(event)">
           <input id="pdfFile" class="file-input-hidden" type="file" accept="application/pdf,.pdf" style="display:none"/>
-          <span class="file-icon">📄</span>
+          <span class="file-icon" aria-hidden="true"><svg width="48" height="56" viewBox="0 0 48 56" fill="none"><path d="M7 3h23l11 11v39H7z" fill="white" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M30 3v12h11M15 24h18M15 31h18M15 38h18M15 45h11" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg></span>
           <span class="file-title">拖入国家移民局12367小程序下载的出入境记录PDF</span>
           <span class="file-cta">选择文件</span>
           <small>建议使用 Chrome、Edge 或 Safari浏览器。PDF不会上传，纯本地解析。</small>

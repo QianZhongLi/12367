@@ -120,6 +120,16 @@
     const fileBox = $('fileBox');
     if (fileBox) {
       fileBox.classList.add('flash-continuous');
+      let visible = false;
+      const syncMotion = () => fileBox.classList.toggle('motion-paused', !visible || document.hidden);
+      syncMotion();
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(entries => {
+          visible = entries[0].isIntersecting;
+          syncMotion();
+        }).observe(fileBox);
+      }
+      document.addEventListener('visibilitychange', syncMotion);
     }
     if (!window.pdfjsLib || !window.EntryExitCalculator || !window.EntryExitHolidays || !window.EntryExitPorts) return;
     $('appLoadStatus').textContent = '加载完成';
