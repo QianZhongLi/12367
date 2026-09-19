@@ -1,3 +1,7 @@
+[hidden] { display: none !important; }
+#summaryYearMode[aria-pressed="true"],
+#summaryAcademicMode[aria-pressed="true"] { background: #0064c8; color: #fff; border-color: #0064c8; }
+
 :root {
   /* 核心提夫尼蓝及其质感变体 */
   --bg: #d3d9d9; 

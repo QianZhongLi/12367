@@ -17,16 +17,17 @@
     <section class="hero">
       <div class="hero-copy">
         <h1>港澳逗留有效天数计算器</h1>
-        <p style="cursor:pointer;color:var(--primary);font-weight:600;margin:0 0 14px" onclick="toggleCollapse('heroContent', this.querySelector('.collapse-icon'))"><span class="collapse-icon">▼</span> 点击展开详细计算规则</p>
-        <div id="heroContent" class="collapse-wrap">
           <p class="hero-meta">
-            Cloud flare托管永久免费，本地计算不上传任何信息，选择“国家移民管理局12367”微信小程序下载的出入境记录PDF，即可计算。天数要求→
+            <span id="appLoadStatus" role="status">正在加载……，加载完成后本文字应消失，否则可能是卡顿或js被禁用</span><br/>
+            Cloud flare托管永久免费，本地计算不上传任何信息，选择“国家移民管理局12367”微信小程序下载的出入境记录PDF，即可计算。<br/>天数要求→
             <a href="https://zwfw.cscse.edu.cn" target="_blank">国家留服认证中心，点击常见问题解答</a><br/>
             原作：LeeV <a href="https://entryexittime.netlify.app/" target="_blank">若此版本出现故障，可直接访问原版</a><br/>
-            二创：钱中里（使用KimiCode新增功能） · 
+            二创：钱中里（使用KimiCode新增功能，Codex更新UI） ·
             <span id="offlineOnlineText"><a href="https://12367.pages.dev/" target="_blank">访问在线版</a></span><br/>
             <a href="https://xhslink.com/m/92oEpfNKzp3" target="_blank">小红书@伟龙马路职业技术学院</a><br/>
           </p>
+        <button id="rulesToggle" type="button" aria-controls="heroContent" aria-expanded="false" onclick="toggleCollapse('heroContent', this.querySelector('.collapse-icon'))"><span class="collapse-icon rotated">▼</span> 点击展开详细计算规则</button>
+        <div id="heroContent" class="collapse-wrap collapsed" hidden>
           <pre style="white-space:pre-wrap;font-family:inherit;line-height:1.7;background:rgba(8,163,159,0.05);padding:14px 16px;border-radius:12px;border:1px solid rgba(8,163,159,0.12);margin:14px 0">
 留服认证要求一年制90天，二年制180天，四年制365天，具体还要结合课表和当地假期判断。
 本计算器计算规则说明：
@@ -210,12 +211,21 @@
         
       </div>
 
-      <h3>年度汇总</h3>
+      <h3 id="summaryHeading">年度汇总</h3>
+      <div class="calendar-mode-bar" role="group" aria-label="统计方式">
+        <button id="summaryYearMode" type="button" aria-pressed="true">年份统计</button>
+        <button id="summaryAcademicMode" type="button" aria-pressed="false">学年统计</button>
+      </div>
+      <div id="academicSettings" class="calendar-toolbar" hidden>
+        <label>学年开始月份 <select id="academicStartMonth" aria-label="学年开始月份"></select></label>
+        <label>学年结束月份 <select id="academicEndMonth" aria-label="学年结束月份"></select></label>
+      </div>
+      <p id="summaryPeriodHint" class="hint" role="status">按自然年 1 月至 12 月统计。</p>
       <div class="table-wrap">
         <table id="summaryTable">
           <thead>
             <tr>
-              <th>年份</th>
+              <th id="summaryPeriodColumn">年份</th>
               <th>自然离境天数</th>
               <th>周末扣除</th>
               <th>公众假期扣除</th>

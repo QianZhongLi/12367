@@ -602,6 +602,28 @@
     }));
   }
 
+  function buildSummaryByAcademicYear(dailyRows, startMonth = 9, endMonth = 6) {
+    if (![startMonth, endMonth].every(month => Number.isInteger(month) && month >= 1 && month <= 12)) {
+      throw new RangeError('学年月份必须在 1 至 12 月之间');
+    }
+    const groups = new Map();
+    const crossesYear = endMonth < startMonth;
+    for (const row of dailyRows) {
+      const year = Number(row.date.slice(0, 4));
+      const month = Number(row.date.slice(5, 7));
+      const included = crossesYear ? month >= startMonth || month <= endMonth : month >= startMonth && month <= endMonth;
+      if (!included) continue;
+      const startYear = crossesYear && month <= endMonth ? year - 1 : year;
+      if (!groups.has(startYear)) groups.set(startYear, []);
+      groups.get(startYear).push({ ...row, year: startYear });
+    }
+    return [...groups.keys()].sort((a, b) => a - b).map(startYear => {
+      const summary = buildSummaryByYear(groups.get(startYear))[0];
+      const endYear = startYear + (crossesYear ? 1 : 0);
+      return { ...summary, year: `${startYear}年${startMonth}月—${endYear}年${endMonth}月` };
+    });
+  }
+
   function roundNumber(num) {
     return Math.round((Number(num) || 0) * 10) / 10;
   }
@@ -611,6 +633,7 @@
     calculateResult,
     applyReviewDecisions,
     buildSummaryByYear,
+    buildSummaryByAcademicYear,
     deduplicateDailyRows,
     buildDailyDeductRow,
     expandDateRange,

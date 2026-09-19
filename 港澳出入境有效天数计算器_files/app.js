@@ -10,7 +10,12 @@
     cumulativeStartDate: '',
     calendarMode: 'year',
     zoomLevels: { year: 1, scroll: 1, month: 1, full: 1 },
-    hasScrolledAfterCalc: false
+    hasScrolledAfterCalc: false,
+    isDemo: false,
+    shortDaysTimer: null,
+    summaryMode: 'year',
+    academicStartMonth: 9,
+    academicEndMonth: 6
   };
 
   const $ = (id) => document.getElementById(id);
@@ -26,6 +31,10 @@
     const el = $(id);
     if (!el) return;
     el.classList.toggle('collapsed');
+    if (id === 'heroContent') {
+      el.hidden = el.classList.contains('collapsed');
+      $('rulesToggle').setAttribute('aria-expanded', String(!el.hidden));
+    }
     if (!el.classList.contains('collapsed')) loadDeferredImages(el);
     if (iconEl) {
       iconEl.classList.toggle('rotated');
@@ -68,21 +77,13 @@
       }
     }
 
-    // 页面加载1秒后自动折叠 hero 与 PDF 指南
-    setTimeout(() => {
-      const heroContent = $('heroContent');
-      if (heroContent) heroContent.classList.add('collapsed');
-      // 旋转三角
-      document.querySelectorAll('.hero .collapse-icon').forEach(icon => {
-        icon.classList.add('rotated');
-      });
-    }, 1000);
-
     // PDF 导入框持续引导闪动（直到用户上传或粘贴）
     const fileBox = $('fileBox');
     if (fileBox) {
       fileBox.classList.add('flash-continuous');
     }
+    if (!window.pdfjsLib || !window.EntryExitCalculator || !window.EntryExitHolidays || !window.EntryExitPorts) return;
+    $('appLoadStatus').textContent = '加载完成';
   }
 
   function setupPdfJs() {
@@ -172,6 +173,25 @@
   }
 
   function bindEvents() {
+    for (const id of ['academicStartMonth', 'academicEndMonth']) {
+      for (let month = 1; month <= 12; month++) {
+        const option = document.createElement('option');
+        option.value = month;
+        option.textContent = `${month} 月`;
+        $(id).appendChild(option);
+      }
+    }
+    $('academicStartMonth').value = state.academicStartMonth;
+    $('academicEndMonth').value = state.academicEndMonth;
+    const updateSummary = () => {
+      state.academicStartMonth = Number($('academicStartMonth').value);
+      state.academicEndMonth = Number($('academicEndMonth').value);
+      if (state.currentResult) renderSummary(state.currentResult);
+    };
+    $('summaryYearMode').addEventListener('click', () => { state.summaryMode = 'year'; updateSummary(); });
+    $('summaryAcademicMode').addEventListener('click', () => { state.summaryMode = 'academic'; updateSummary(); });
+    $('academicStartMonth').addEventListener('change', updateSummary);
+    $('academicEndMonth').addEventListener('change', updateSummary);
     const pdfFileEl = $('pdfFile');
     if (pdfFileEl) pdfFileEl.addEventListener('change', (e) => {
       onFileChange(e);
@@ -196,7 +216,7 @@
  6   入境   2026-05-21   往来港澳通行证   *********   横琴口岸`;
         $('rawText').value = demoText;
         setTextStatus('已填入示例数据，正在计算...', false);
-        calculateFromText();
+        calculateFromText(true);
       });
     }
     const copySummaryBtn = $('copySummaryBtn');
@@ -643,7 +663,7 @@
     return pageTexts.join('\n');
   }
 
-  function calculateFromText() {
+  function calculateFromText(isDemo = false) {
     const text = $('rawText').value || '';
     if (!text.trim()) return;
 
@@ -652,7 +672,7 @@
     if (fileBox) fileBox.classList.remove('flash-continuous');
 
     setTextStatus('正在计算...', false);
-    runCalculation(text);
+    runCalculation(text, isDemo === true);
   }
 
   function autoDetectRegion(records) {
@@ -667,7 +687,10 @@
     return macaoCount >= hongkongCount ? 'macao' : 'hongkong';
   }
 
-  function runCalculation(text) {
+  function runCalculation(text, isDemo = false) {
+    state.isDemo = isDemo;
+    clearTimeout(state.shortDaysTimer);
+    $('shortDaysModal')?.classList.remove('show');
     const region = getRegion();
 
     state.lastRegion = region;
@@ -810,7 +833,25 @@
     showResultModal();
   }
 
+  function getSummaryRows(result) {
+    return state.summaryMode === 'academic'
+      ? window.EntryExitCalculator.buildSummaryByAcademicYear(result.dailyRows || [], state.academicStartMonth, state.academicEndMonth)
+      : (result.summaryByYear || []);
+  }
+
   function renderSummary(result) {
+    const academic = state.summaryMode === 'academic';
+    const summaryRows = getSummaryRows(result);
+    $('summaryYearMode').setAttribute('aria-pressed', String(!academic));
+    $('summaryAcademicMode').setAttribute('aria-pressed', String(academic));
+    $('academicSettings').hidden = !academic;
+    $('summaryHeading').textContent = academic ? '学年汇总' : '年度汇总';
+    $('summaryPeriodColumn').textContent = academic ? '学年（起止月份）' : '年份';
+    $('copySummaryBtn').textContent = academic ? '复制学年汇总' : '复制年度汇总';
+    const outside = (result.dailyRows || []).length - summaryRows.reduce((sum, row) => sum + row.naturalDays, 0);
+    $('summaryPeriodHint').textContent = academic
+      ? `每年 ${state.academicStartMonth} 月至${state.academicEndMonth < state.academicStartMonth ? '次年' : '当年'} ${state.academicEndMonth} 月，含起止月份全部日期。学年范围外 ${outside} 天不计入本表；全年总天数及日历不变。`
+      : '按自然年 1 月至 12 月统计。';
     $('recordCount').textContent = result.recordCount || 0;
     $('intervalCount').textContent = result.intervalCount || 0;
     $('reviewCount').textContent = result.reviewCount || 0;
@@ -823,7 +864,7 @@
 
     let totalNatural = 0, totalWeekend = 0, totalGov = 0, totalComp = 0, totalSchool = 0, totalDeduct = 0, totalValid = 0;
 
-    for (const row of result.summaryByYear || []) {
+    for (const row of summaryRows) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escapeHtml(row.year)}</td>
@@ -852,7 +893,7 @@
     const reviewMsg = $('reviewEffectMessage');
     if (reviewMsg) reviewMsg.style.display = '';
 
-    if (result.summaryByYear && result.summaryByYear.length > 0) {
+    if (summaryRows.length > 0) {
       const totalTr = document.createElement('tr');
       totalTr.style.cssText = 'background:#d3dbdb;font-weight:900';
       totalTr.innerHTML = `
@@ -970,7 +1011,7 @@
 
     copyTextToClipboard(text)
       .then(() => {
-        alert('已复制年度汇总文本。');
+        alert(state.summaryMode === 'academic' ? '已复制学年汇总文本。' : '已复制年度汇总文本。');
       })
       .catch(() => {
         showManualCopyBox(text);
@@ -979,16 +1020,17 @@
 
   function buildReadableSummaryText(result) {
     const regionName = getRegionName(result.selectedRegion || getRegion());
-    const rows = Array.isArray(result.summaryByYear) ? result.summaryByYear : [];
+    const rows = getSummaryRows(result);
 
     const lines = [];
 
     lines.push(`您好，以下为我的${regionName}出入境有效离境天数统计结果：`);
+    if (state.summaryMode === 'academic') lines.push($('summaryPeriodHint').textContent);
     lines.push('');
 
     rows.forEach(row => {
       lines.push(
-        `${row.year}年：有效离境天数为 ${formatDayNumber(row.validDays)} 天` +
+        `${row.year}${state.summaryMode === 'year' ? '年' : ''}：有效离境天数为 ${formatDayNumber(row.validDays)} 天` +
         `（自然离境天数为 ${formatDayNumber(row.naturalDays)} 天；` +
         `扣除周末 ${formatDayNumber(row.weekendDeductDays)} 天，` +
         `扣除公众假期 ${formatDayNumber(row.govHolidayDeductDays)} 天，` +
@@ -1172,7 +1214,7 @@
     }
 
     const rows = [['年份', '自然离境天数', '周末扣除', '公众假期扣除', '补假扣除', '学校假期扣除', '合计扣除', '有效离境天数']]
-      .concat((state.currentResult.summaryByYear || []).map(r => [
+      .concat(getSummaryRows(state.currentResult).map(r => [
         r.year,
         r.naturalDays,
         r.weekendDeductDays,
@@ -1186,7 +1228,9 @@
     rows.push([]);
     rows.push(['说明', '本文件由港澳出入境有效天数计算器生成。作者：LeeV，钱中里。']);
 
-    downloadCsv(rows, '年度汇总.csv');
+    rows[0][0] = state.summaryMode === 'academic' ? '学年（起止月份）' : '年份';
+    if (state.summaryMode === 'academic') rows.push(['统计范围', $('summaryPeriodHint').textContent]);
+    downloadCsv(rows, state.summaryMode === 'academic' ? '学年汇总.csv' : '年度汇总.csv');
   }
 
   function exportCombinedCsv() {
@@ -1198,8 +1242,9 @@
     const rows = [];
     // 第一部分：计算结果汇总
     rows.push(['=== 计算结果汇总 ===']);
-    rows.push(['年份', '自然离境天数', '周末扣除', '公众假期扣除', '补假扣除', '学校假期扣除', '合计扣除', '有效离境天数']);
-    (state.currentResult.summaryByYear || []).forEach(r => {
+    if (state.summaryMode === 'academic') rows.push(['统计范围', $('summaryPeriodHint').textContent]);
+    rows.push([state.summaryMode === 'academic' ? '学年（起止月份）' : '年份', '自然离境天数', '周末扣除', '公众假期扣除', '补假扣除', '学校假期扣除', '合计扣除', '有效离境天数']);
+    getSummaryRows(state.currentResult).forEach(r => {
       rows.push([r.year, r.naturalDays, r.weekendDeductDays, r.govHolidayDeductDays, r.compensatoryDeductDays, r.schoolBreakDeductDays, r.totalDeductDays, r.validDays]);
     });
 
@@ -1347,7 +1392,7 @@
 
     $('modalNumber').textContent = Math.round(totalValid * 10) / 10;
 
-    if (totalValid < 10) {
+    if (totalValid < 10 && !state.isDemo) {
       $('modalLabel').textContent = '合计有效离境天数';
       if (totalValid === 0) {
         $('modalDetail').textContent = '当前结果为 0，请检查是否已选择正确的使用地区（03 卡片），或确认数据是否完整。';
@@ -1364,9 +1409,10 @@
     if (modal) modal.classList.add('show');
 
     // 如果自动去除了扣除限制，延迟显示天数较少提示弹窗
-    if (state.autoDeductRemoved && !state.shortDaysTipShown) {
+    if (state.autoDeductRemoved && !state.shortDaysTipShown && !state.isDemo) {
       state.shortDaysTipShown = true;
-      setTimeout(() => {
+      state.shortDaysTimer = setTimeout(() => {
+        if (state.isDemo) return;
         const tipModal = $('shortDaysModal');
         if (tipModal) {
           loadDeferredImages(tipModal);
