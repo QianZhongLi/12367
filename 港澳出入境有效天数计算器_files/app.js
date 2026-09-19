@@ -19,6 +19,45 @@
   };
 
   const $ = (id) => document.getElementById(id);
+  let stopAutoDemo = () => {};
+
+  function setupAutoDemo() {
+    if (!('IntersectionObserver' in window)) return;
+    const message = $('demoCountdown');
+    let timer = null;
+    let stopped = false;
+    let seconds = 5;
+    const pause = () => {
+      clearInterval(timer);
+      timer = null;
+      seconds = 5;
+      message.hidden = true;
+    };
+    const observer = new IntersectionObserver(entries => {
+      if (stopped) return;
+      if (!entries[0].isIntersecting || entries[0].intersectionRatio < 0.25) { pause(); return; }
+      if (timer) return;
+      if ($('rawText').value.trim() || $('pdfFile').files.length || state.currentResult) { stopAutoDemo(); return; }
+      message.hidden = false;
+      message.textContent = `将在 ${seconds} 秒后自动展示示例计算结果；上传或输入自己的记录可取消。`;
+      timer = setInterval(() => {
+        if (document.hidden) return;
+        if ($('rawText').value.trim() || $('pdfFile').files.length || state.currentResult) { stopAutoDemo(); return; }
+        seconds--;
+        if (seconds <= 0) {
+          stopAutoDemo();
+          $('demoBtn').click();
+        } else {
+          message.textContent = `将在 ${seconds} 秒后自动展示示例计算结果；上传或输入自己的记录可取消。`;
+        }
+      }, 1000);
+    }, { threshold: [0, 0.25] });
+    stopAutoDemo = () => { stopped = true; pause(); observer.disconnect(); };
+    for (const event of ['pointerdown', 'click', 'dragenter', 'drop']) $('fileBox').addEventListener(event, stopAutoDemo, true);
+    for (const event of ['focus', 'input', 'paste']) $('rawText').addEventListener(event, stopAutoDemo);
+    $('pdfFile').addEventListener('change', stopAutoDemo);
+    observer.observe($('fileBox'));
+  }
 
   function loadDeferredImages(container) {
     container.querySelectorAll('img[data-src]').forEach(img => {
@@ -84,6 +123,7 @@
     }
     if (!window.pdfjsLib || !window.EntryExitCalculator || !window.EntryExitHolidays || !window.EntryExitPorts) return;
     $('appLoadStatus').textContent = '加载完成';
+    setupAutoDemo();
   }
 
   function setupPdfJs() {
@@ -207,13 +247,14 @@
     const demoBtn = $('demoBtn');
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
-        const demoText = `序号   出境/入境   出入境日期   证件名称   证件号码   出入境口岸
-   航班号 1   出境   2026-05-22   往来港澳通行证   *********   横琴口岸
- 2   入境   2026-05-22   往来港澳通行证   *********   横琴口岸
- 3   出境   2026-05-21   往来港澳通行证   *********   横琴口岸
- 4   入境   2026-05-21   往来港澳通行证   *********   横琴口岸
- 5   出境   2026-05-21   往来港澳通行证   *********   横琴口岸
- 6   入境   2026-05-21   往来港澳通行证   *********   横琴口岸`;
+        stopAutoDemo();
+        const dates = ['09-17','09-17','09-15','09-15','09-11','09-11','06-20','06-19','06-19','06-16','06-16','06-15','06-15','06-15','06-15','06-14','06-14','06-13','06-13','06-13','06-12','06-11','06-11','06-09','06-09','06-08','06-08'];
+        const demoText = `国家移民管理局 出入境记录查询结果（电子文件）
+查询人姓名: **，性别: 男，出生日期: ***********，公民身份号码: ******************，通过国家移民管理局出入境记录查询系统查询，
+其本人在2021年09月18日至2026年09月18日期间有下列出入境记录：
+编号：************* 查询日期：2026年09月18日
+序号 出境/入境 出入境日期 证件名称 证件号码 出入境口岸
+航班号 ` + dates.map((date, index) => `${index + 1} ${index % 2 === 0 ? '入境' : '出境'} 2026-${date} 往来港澳通行证 ********* 横琴口岸`).join('\n');
         $('rawText').value = demoText;
         setTextStatus('已填入示例数据，正在计算...', false);
         calculateFromText(true);
@@ -610,6 +651,7 @@
   }
 
   async function calculateFromPdf() {
+    stopAutoDemo();
     const file = $('pdfFile').files && $('pdfFile').files[0];
     if (!file) return;
 
@@ -688,7 +730,9 @@
   }
 
   function runCalculation(text, isDemo = false) {
+    stopAutoDemo();
     state.isDemo = isDemo;
+    $('demoNotice').hidden = !isDemo;
     clearTimeout(state.shortDaysTimer);
     $('shortDaysModal')?.classList.remove('show');
     const region = getRegion();
@@ -1388,7 +1432,7 @@
     }
 
     const modalTitle = $('modalTitle');
-    if (modalTitle) modalTitle.textContent = `${regionName}计算结果`;
+    if (modalTitle) modalTitle.textContent = `${state.isDemo ? '示例：' : ''}${regionName}计算结果`;
 
     $('modalNumber').textContent = Math.round(totalValid * 10) / 10;
 

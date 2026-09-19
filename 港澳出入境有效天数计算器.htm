@@ -16,14 +16,13 @@
   <main class="page">
     <section class="hero">
       <div class="hero-copy">
-        <h1>港澳逗留有效天数计算器</h1>
+        <h1><span>港澳逗留</span><wbr><span>有效天数计算器</span></h1>
           <p class="hero-meta">
-            <span id="appLoadStatus" role="status">正在加载……，加载完成后本文字应消失，否则可能是卡顿或js被禁用</span><br/>
+            <span id="appLoadStatus" role="status">正在加载……，加载完成后本文字应消失，否则可能是卡顿或js被禁用</span> · <span id="offlineOnlineText"><a href="https://12367.pages.dev/" target="_blank">访问在线版</a></span><br/>
             Cloud flare托管永久免费，本地计算不上传任何信息，选择“国家移民管理局12367”微信小程序下载的出入境记录PDF，即可计算。<br/>天数要求→
             <a href="https://zwfw.cscse.edu.cn" target="_blank">国家留服认证中心，点击常见问题解答</a><br/>
             原作：LeeV <a href="https://entryexittime.netlify.app/" target="_blank">若此版本出现故障，可直接访问原版</a><br/>
-            二创：钱中里（使用KimiCode新增功能，Codex更新UI） ·
-            <span id="offlineOnlineText"><a href="https://12367.pages.dev/" target="_blank">访问在线版</a></span><br/>
+            二创：钱中里（使用KimiCode新增功能，Codex更新UI）<br/>
             <a href="https://xhslink.com/m/92oEpfNKzp3" target="_blank">小红书@伟龙马路职业技术学院</a><br/>
           </p>
         <button id="rulesToggle" type="button" aria-controls="heroContent" aria-expanded="false" onclick="toggleCollapse('heroContent', this.querySelector('.collapse-icon'))"><span class="collapse-icon rotated">▼</span> 点击展开详细计算规则</button>
@@ -37,6 +36,8 @@
 4. 必须从开学日期开始累计，开学前不计入逗留时长
 5. 解析PDF时会自动识别口岸，无法识别的口岸会被标记为待复核，您需要根据真实行程手动选择是计入澳门还是香港，或者不计入（如果是误识别的无效记录）。如果有多个连续记录的口岸都无法识别，您也可以批量选择全部计入澳门或香港
 6. 如果您发现计算结果有误，或者有任何关于使用的建议和意见，欢迎点击计算结果区域的反馈按钮发送反馈，并在小红书留言，我们会第一时间修复并持续优化改进
+7. 如果从澳门飞往其他境外地区，再飞回澳门，且期间未返回内地，本计算器可能仍将其视为同一段离境区间；境外逗留不等于实际在澳门学习，需按真实行程核对。
+8. 本计算器按PDF中的日期估算，不计算具体小时数。跨夜记录可能覆盖两个自然日，但不代表正式认证一定认定为两天；不能据此认定留服认证中心只能看到PDF日期，也不应以短时跨境“刷天数”代替真实学习经历。正式结果以认证核验为准。
           </pre>
         </div>
       </div>
@@ -123,6 +124,8 @@
           <button id="demoBtn" type="button" class="recalc-btn" style="margin-left:8px">示例数据测试</button>
           <button id="recalcPdfBtn" type="button" class="recalc-btn" style="display:none;margin-left:8px">重新计算</button>
         </p>
+        <p id="demoCountdown" class="hint" role="status" hidden></p>
+        <p id="demoNotice" class="hint" hidden>当前展示的是示例数据，仅供参考。上传自己的PDF或粘贴记录后会重新计算。</p>
       </section>
 
       <!-- 02 解析文本展示区 / 粘贴文本区 -->
